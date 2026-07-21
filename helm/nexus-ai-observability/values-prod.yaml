@@ -1,0 +1,2 @@
+replicas: {dashboard: 3, modelService: 2, metricsService: 3}
+config: {environmentName: Production, kubernetesNamespace: nexus-ai-prod, refreshInterval: "12"}

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata: {name: model-service}
+spec: {selector: {app: model-service}, ports: [{port: 8001, targetPort: 8001}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: metrics-service}
+spec: {selector: {app: metrics-service}, ports: [{port: 8002, targetPort: 8002}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: dashboard}
+spec: {selector: {app: dashboard}, ports: [{port: {{ .Values.service.dashboardPort }}, targetPort: 8000}]}

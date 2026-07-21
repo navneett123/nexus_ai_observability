@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: model-service}
+spec:
+  replicas: {{ .Values.replicas.modelService }}
+  selector: {matchLabels: {app: model-service}}
+  template:
+    metadata: {labels: {app: model-service}}
+    spec:
+      containers:
+        - name: model-service
+          image: "{{ .Values.image.registry }}/nexus-model-service:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: [{containerPort: 8001}]
+          readinessProbe: {httpGet: {path: /health, port: 8001}, initialDelaySeconds: 4, periodSeconds: 5}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: metrics-service}
+spec:
+  replicas: {{ .Values.replicas.metricsService }}
+  selector: {matchLabels: {app: metrics-service}}
+  template:
+    metadata: {labels: {app: metrics-service}}
+    spec:
+      containers:
+        - name: metrics-service
+          image: "{{ .Values.image.registry }}/nexus-metrics-service:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: [{containerPort: 8002}]
+          readinessProbe: {httpGet: {path: /health, port: 8002}, initialDelaySeconds: 4, periodSeconds: 5}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: dashboard}
+spec:
+  replicas: {{ .Values.replicas.dashboard }}
+  selector: {matchLabels: {app: dashboard}}
+  template:
+    metadata: {labels: {app: dashboard}}
+    spec:
+      containers:
+        - name: dashboard
+          image: "{{ .Values.image.registry }}/nexus-dashboard:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: [{containerPort: 8000}]
+          env:
+            - {name: MODEL_SERVICE_URL, value: "http://model-service:8001"}
+            - {name: METRICS_SERVICE_URL, value: "http://metrics-service:8002"}
+            - {name: ENVIRONMENT_NAME, value: {{ .Values.config.environmentName | quote }}}
+            - {name: APP_VERSION, value: {{ .Values.config.appVersion | quote }}}
+            - {name: OCTOPUS_RELEASE, value: {{ .Values.config.octopusRelease | quote }}}
+            - {name: KUBERNETES_NAMESPACE, value: {{ .Values.config.kubernetesNamespace | quote }}}
+            - {name: REFRESH_INTERVAL, value: {{ .Values.config.refreshInterval | quote }}}
+            - {name: DEFAULT_MODEL, value: {{ .Values.config.defaultModel | quote }}}
+          readinessProbe: {httpGet: {path: /ready, port: 8000}, initialDelaySeconds: 8, periodSeconds: 5}
+          livenessProbe: {httpGet: {path: /health, port: 8000}, initialDelaySeconds: 10, periodSeconds: 10}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}

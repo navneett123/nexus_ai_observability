@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nexus AI Observability</title><link rel="stylesheet" href="/static/styles.css"></head>
+<body data-default-model="{{ default_model }}" data-refresh="{{ refresh_interval }}">
+<header><div><small>AI PLATFORM OPERATIONS</small><h1>Nexus AI Observability</h1></div><div class="meta"><span>{{ environment }}</span><span>App {{ app_version }}</span><span>Release {{ release }}</span><span id="clock">--:--:--</span></div></header>
+<main>
+<section class="card hero"><label for="model-select">Monitored model</label><select id="model-select"></select><div class="title-row"><div><h2 id="model-name">Loading…</h2><p id="model-use-case"></p></div><div class="live">● Live telemetry</div></div><div class="tags"><span id="model-type"></span><span id="model-framework"></span><span id="model-version"></span><span id="model-owner"></span><span id="model-endpoint"></span></div></section>
+<section id="summary" class="summary"></section>
+<section class="charts"><article class="card"><h3>Request volume</h3><canvas id="requests"></canvas></article><article class="card"><h3>Inference latency</h3><canvas id="latency"></canvas></article><article class="card"><h3>GPU utilisation</h3><canvas id="gpu"></canvas></article><article class="card"><h3>Error activity</h3><canvas id="errors"></canvas></article></section>
+<section class="details"><article class="card"><h3>Infrastructure usage <span id="namespace"></span></h3><div id="infra"></div></article><article class="card"><h3>Inference profile</h3><div id="inference"></div></article></section>
+<section class="card"><h3>Recent model errors <span id="updated"></span></h3><div class="tablewrap"><table><thead><tr><th>Time</th><th>Error</th><th>Severity</th><th>Count</th></tr></thead><tbody id="error-table"></tbody></table></div></section>
+</main><script src="/static/dashboard.js"></script></body></html>

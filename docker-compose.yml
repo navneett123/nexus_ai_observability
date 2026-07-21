@@ -1,0 +1,19 @@
+services:
+  model-service:
+    build: {context: ., dockerfile: services/model-service/Dockerfile}
+    ports: ["8001:8001"]
+  metrics-service:
+    build: {context: ., dockerfile: services/metrics-service/Dockerfile}
+    ports: ["8002:8002"]
+  dashboard:
+    build: {context: ., dockerfile: services/dashboard/Dockerfile}
+    ports: ["8000:8000"]
+    environment:
+      MODEL_SERVICE_URL: http://model-service:8001
+      METRICS_SERVICE_URL: http://metrics-service:8002
+      ENVIRONMENT_NAME: Local
+      APP_VERSION: local
+      OCTOPUS_RELEASE: local
+      KUBERNETES_NAMESPACE: local
+      REFRESH_INTERVAL: "8"
+    depends_on: [model-service, metrics-service]
