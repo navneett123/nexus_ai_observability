@@ -1,5 +1,5 @@
 image:
-  registry: ghcr.io/CHANGE_ME
+  registry: navneet78
   tag: latest
   pullPolicy: Always
 replicas:
