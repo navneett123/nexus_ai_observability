@@ -6,8 +6,13 @@ services:
       dockerfile: services/model-service/Dockerfile
     environment:
       APP_VERSION: ${RELEASE_VERSION:-local}
-    ports:
-      - "8001:8001"
+    expose:
+      - "8001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
 
   metrics-service:
     image: ${REGISTRY_NAMESPACE:-navneet78}/nexus-metrics-service:${RELEASE_VERSION:-local}
@@ -16,8 +21,13 @@ services:
       dockerfile: services/metrics-service/Dockerfile
     environment:
       APP_VERSION: ${RELEASE_VERSION:-local}
-    ports:
-      - "8002:8002"
+    expose:
+      - "8002"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
 
   dashboard:
     image: ${REGISTRY_NAMESPACE:-navneet78}/nexus-dashboard:${RELEASE_VERSION:-local}
@@ -25,7 +35,7 @@ services:
       context: .
       dockerfile: services/dashboard/Dockerfile
     ports:
-      - "8000:8000"
+      - "${DASHBOARD_PORT:-18000}:8000"
     environment:
       MODEL_SERVICE_URL: http://model-service:8001
       METRICS_SERVICE_URL: http://metrics-service:8002
@@ -36,5 +46,12 @@ services:
       REFRESH_INTERVAL: ${REFRESH_INTERVAL:-8}
       DEFAULT_MODEL: ${DEFAULT_MODEL:-supportpilot}
     depends_on:
-      - model-service
-      - metrics-service
+      model-service:
+        condition: service_healthy
+      metrics-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
