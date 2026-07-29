@@ -1,7 +1,8 @@
 image:
   registry: navneet78
-  tag: latest
-  pullPolicy: Always
+  # TeamCity/Octopus must override this with the immutable release version.
+  tag: local
+  pullPolicy: IfNotPresent
 replicas:
   dashboard: 1
   modelService: 1

@@ -12,6 +12,8 @@ spec:
           image: "{{ .Values.image.registry }}/nexus-model-service:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports: [{containerPort: 8001}]
+          env:
+            - {name: APP_VERSION, value: {{ .Values.config.appVersion | quote }}}
           readinessProbe: {httpGet: {path: /health, port: 8001}, initialDelaySeconds: 4, periodSeconds: 5}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
@@ -30,6 +32,8 @@ spec:
           image: "{{ .Values.image.registry }}/nexus-metrics-service:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports: [{containerPort: 8002}]
+          env:
+            - {name: APP_VERSION, value: {{ .Values.config.appVersion | quote }}}
           readinessProbe: {httpGet: {path: /health, port: 8002}, initialDelaySeconds: 4, periodSeconds: 5}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
