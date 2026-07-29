@@ -1,0 +1,27 @@
+# Default repository ownership
+* @navneett123
+
+# GitHub repository governance
+/.github/ @navneett123
+
+# Dashboard service
+/services/dashboard/ @navneett123
+
+# Model service
+/services/model-service/ @navneett123
+
+# Metrics service
+/services/metrics-service/ @navneett123
+
+# Automated tests
+/tests/ @navneett123
+
+# Helm deployment configuration
+/helm/ @navneett123
+
+# CI and operational scripts
+/scripts/ @navneett123
+
+# Repository-level container configuration
+/docker-compose.yml @navneett123
+/.dockerignore @navneett123
