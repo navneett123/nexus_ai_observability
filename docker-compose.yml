@@ -1,22 +1,26 @@
 services:
   model-service:
-    image: ${REGISTRY_NAMESPACE}/nexus-model-service:${RELEASE_VERSION}
+    image: ${REGISTRY_NAMESPACE:-navneet78}/nexus-model-service:${RELEASE_VERSION:-local}
     build:
       context: .
       dockerfile: services/model-service/Dockerfile
+    environment:
+      APP_VERSION: ${RELEASE_VERSION:-local}
     ports:
       - "8001:8001"
 
   metrics-service:
-    image: ${REGISTRY_NAMESPACE}/nexus-metrics-service:${RELEASE_VERSION}
+    image: ${REGISTRY_NAMESPACE:-navneet78}/nexus-metrics-service:${RELEASE_VERSION:-local}
     build:
       context: .
       dockerfile: services/metrics-service/Dockerfile
+    environment:
+      APP_VERSION: ${RELEASE_VERSION:-local}
     ports:
       - "8002:8002"
 
   dashboard:
-    image: ${REGISTRY_NAMESPACE}/nexus-dashboard:${RELEASE_VERSION}
+    image: ${REGISTRY_NAMESPACE:-navneet78}/nexus-dashboard:${RELEASE_VERSION:-local}
     build:
       context: .
       dockerfile: services/dashboard/Dockerfile
@@ -25,11 +29,12 @@ services:
     environment:
       MODEL_SERVICE_URL: http://model-service:8001
       METRICS_SERVICE_URL: http://metrics-service:8002
-      ENVIRONMENT_NAME: Local
-      APP_VERSION: ${RELEASE_VERSION}
-      OCTOPUS_RELEASE: ${RELEASE_VERSION}
-      KUBERNETES_NAMESPACE: local
-      REFRESH_INTERVAL: "8"
+      ENVIRONMENT_NAME: ${ENVIRONMENT_NAME:-Local}
+      APP_VERSION: ${RELEASE_VERSION:-local}
+      OCTOPUS_RELEASE: ${RELEASE_VERSION:-local}
+      KUBERNETES_NAMESPACE: ${KUBERNETES_NAMESPACE:-local}
+      REFRESH_INTERVAL: ${REFRESH_INTERVAL:-8}
+      DEFAULT_MODEL: ${DEFAULT_MODEL:-supportpilot}
     depends_on:
       - model-service
       - metrics-service

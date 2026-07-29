@@ -32,10 +32,22 @@ def test_missing_model():
     assert TestClient(model.app).get("/models/missing").status_code == 404
 
 
+
+def test_model_health_version():
+    response = TestClient(model.app).get("/health")
+    assert response.status_code == 200
+    assert response.json()["version"] == model.APP_VERSION
+
+
+def test_metrics_health_version():
+    response = TestClient(metrics.app).get("/health")
+    assert response.status_code == 200
+    assert response.json()["version"] == metrics.APP_VERSION
+
 def test_dashboard_health():
     response = TestClient(dashboard.app).get("/health")
     assert response.status_code == 200
-    assert response.json()["version"] == "2.1.0"
+    assert response.json()["version"] == dashboard.APP_VERSION
 
 
 def test_dashboard_page_uses_platform_health_section():

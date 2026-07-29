@@ -1,5 +1,8 @@
+import os
 from fastapi import FastAPI, HTTPException
-app = FastAPI(title="Nexus AI Model Catalog", version="2.0.0")
+
+APP_VERSION = os.getenv("APP_VERSION", "local")
+app = FastAPI(title="Nexus AI Model Catalog", version=APP_VERSION)
 
 MODELS = {
  "supportpilot":{"id":"supportpilot","name":"SupportPilot Assistant","use_case":"Generative AI assistant for customer-support agents","type":"Large Language Model","framework":"Llama","version":"8B-v6","endpoint":"/inference/support","owner":"Customer Experience AI","accent":"#8b5cf6","business_metric":"Positive feedback","business_unit":"%"},
@@ -10,7 +13,7 @@ MODELS = {
  "demandpulse":{"id":"demandpulse","name":"DemandPulse Forecaster","use_case":"Product-demand and inventory forecasting","type":"Time Series","framework":"Prophet","version":"3.3","endpoint":"/inference/forecast","owner":"Supply Intelligence","accent":"#3b82f6","business_metric":"Forecast accuracy","business_unit":"%"}
 }
 @app.get("/health")
-def health(): return {"status":"healthy","service":"model-service"}
+def health(): return {"status":"healthy","service":"model-service","version":APP_VERSION}
 @app.get("/models")
 def list_models(): return list(MODELS.values())
 @app.get("/models/{model_id}")

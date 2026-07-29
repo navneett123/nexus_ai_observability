@@ -1,7 +1,8 @@
-import math, random
+import math, os, random
 from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException
-app = FastAPI(title="Nexus AI Metrics Service", version="2.0.0")
+APP_VERSION = os.getenv("APP_VERSION", "local")
+app = FastAPI(title="Nexus AI Metrics Service", version=APP_VERSION)
 PROFILES={
 "supportpilot":{"latency":1820,"gpu":76,"business":91.4,"tokens":38,"errors":["Context length exceeded","Prompt safety validation failed","Knowledge retrieval timeout"]},
 "visionforge":{"latency":76,"gpu":88,"business":97.1,"tokens":0,"errors":["Invalid image dimensions","CUDA out of memory","Camera frame timeout"]},
@@ -12,7 +13,7 @@ PROFILES={
 def trend(base,points=24,spread=.12):
     return [round(max(0,base+math.sin(i/2.8)*base*spread+random.uniform(-base*spread/2,base*spread/2)),2) for i in range(points)]
 @app.get("/health")
-def health(): return {"status":"healthy","service":"metrics-service"}
+def health(): return {"status":"healthy","service":"metrics-service","version":APP_VERSION}
 @app.get("/metrics/{model_id}")
 def metrics(model_id:str):
     if model_id not in PROFILES: raise HTTPException(status_code=404,detail="Metrics profile not found")
