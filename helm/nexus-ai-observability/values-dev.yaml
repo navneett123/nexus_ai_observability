@@ -1,2 +1,12 @@
-replicas: {dashboard: 1, modelService: 1, metricsService: 1}
-config: {environmentName: Development, kubernetesNamespace: nexus-ai-dev}
+replicas:
+  dashboard: 1
+  modelService: 1
+  metricsService: 1
+
+config:
+  environmentName: Development
+  refreshInterval: "8"
+
+ingress:
+  enabled: true
+  host: nexus-dev.local

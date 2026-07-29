@@ -1,21 +1,33 @@
 image:
   registry: navneet78
-  # TeamCity/Octopus must override this with the immutable release version.
   tag: local
   pullPolicy: IfNotPresent
+
 replicas:
   dashboard: 1
   modelService: 1
   metricsService: 1
+
 config:
-  environmentName: Development
+  environmentName: Local
   appVersion: local
   octopusRelease: local
-  kubernetesNamespace: nexus-ai-dev
   refreshInterval: "8"
   defaultModel: supportpilot
+
 service:
   dashboardPort: 80
+
 resources:
-  requests: {cpu: 50m, memory: 64Mi}
-  limits: {cpu: 300m, memory: 256Mi}
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+ingress:
+  enabled: false
+  className: traefik
+  host: nexus.local
+  path: /

@@ -1,0 +1,11 @@
+image:
+  registry: navneet78
+  tag: "#{Octopus.Release.Number}"
+
+config:
+  environmentName: "#{Octopus.Environment.Name}"
+  appVersion: "#{Octopus.Release.Number}"
+  octopusRelease: "#{Octopus.Release.Number}"
+
+ingress:
+  host: "#{IngressHost}"
