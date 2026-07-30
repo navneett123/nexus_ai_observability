@@ -13,7 +13,7 @@ fi
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-for values_file in values-dev.yaml values-prod.yaml; do
+for values_file in values-dev.yaml values-prod.yaml values-octopus.yaml; do
   helm lint "$CHART_DIR" -f "$CHART_DIR/$values_file" \
     --set-string image.tag="$RELEASE_VERSION"
   helm template nexus-ai-observability "$CHART_DIR" \

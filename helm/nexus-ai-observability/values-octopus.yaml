@@ -1,0 +1,9 @@
+# Octopus substitutes only environment/deployment metadata.
+# The image tag is intentionally NOT set here. It comes from Chart.appVersion,
+# which TeamCity stamps with RELEASE_VERSION when packaging the immutable chart.
+config:
+  environmentName: "#{Octopus.Environment.Name}"
+  deploymentRelease: "#{Octopus.Release.Number}"
+
+ingress:
+  host: "#{IngressHost}"

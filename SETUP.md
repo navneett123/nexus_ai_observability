@@ -56,13 +56,13 @@ ReleaseVersion
 Chart source              Chart inside a package
 Chart package             nexus-ai-observability
 Namespace                 #{KubernetesNamespace}
-Additional values file    octopus/values-octopus.yaml
+Additional values file    values-octopus.yaml
 Additional parameters     <empty>
 Reset values              enabled
 Wait for resources        enabled
 ```
 
-Enable variable substitution for `octopus/values-octopus.yaml`.
+Enable variable substitution for `values-octopus.yaml`.
 
 ## k3d verification
 

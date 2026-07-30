@@ -44,7 +44,7 @@ The Helm deployment step uses:
 
 - package: `nexus-ai-observability`;
 - namespace: `#{KubernetesNamespace}`;
-- additional values file: `octopus/values-octopus.yaml`;
+- additional values file: `values-octopus.yaml`;
 - no additional Helm parameters.
 
 Only environment-specific values are stored in Octopus. See `octopus/DEPLOYMENT.md`.

@@ -4,7 +4,7 @@ Configure the Helm step once:
 
 - Chart package: `nexus-ai-observability`
 - Namespace: `#{KubernetesNamespace}`
-- Additional values file: `octopus/values-octopus.yaml`
+- Additional values file: `values-octopus.yaml`
 - Structured variable replacement: enabled for `values-octopus.yaml`
 - Additional Helm parameters: leave empty
 
