@@ -1,130 +1,104 @@
+{{- $root := . -}}
+{{- $components := list
+  (dict "name" "model-service" "port" 8001 "replicas" .Values.replicas.modelService "healthPath" "/health")
+  (dict "name" "metrics-service" "port" 8002 "replicas" .Values.replicas.metricsService "healthPath" "/health")
+  (dict "name" "dashboard" "port" 8000 "replicas" .Values.replicas.dashboard "healthPath" "/health")
+-}}
+{{- range $index, $component := $components }}
+{{- if $index }}
+---
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: model-service
+  name: {{ $component.name }}
   labels:
-    app.kubernetes.io/name: model-service
-    app.kubernetes.io/part-of: nexus-ai-observability
-    app.kubernetes.io/version: {{ .Values.image.tag | quote }}
+    {{- include "nexus.commonLabels" $root | nindent 4 }}
+    {{- include "nexus.selectorLabels" (dict "component" $component.name "root" $root) | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicas.modelService }}
+  replicas: {{ $component.replicas }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: model-service
+      {{- include "nexus.selectorLabels" (dict "component" $component.name "root" $root) | nindent 6 }}
   template:
     metadata:
+      annotations:
+        checksum/config: {{ printf "%s:%s:%s" $root.Values.config.environmentName $root.Values.config.refreshInterval $root.Values.config.defaultModel | sha256sum }}
+        {{- with $root.Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       labels:
-        app: model-service
-        app.kubernetes.io/version: {{ .Values.image.tag | quote }}
+        {{- include "nexus.selectorLabels" (dict "component" $component.name "root" $root) | nindent 8 }}
+        app.kubernetes.io/version: {{ include "nexus.versionLabel" $root | quote }}
     spec:
+      securityContext:
+        {{- toYaml $root.Values.podSecurityContext | nindent 8 }}
+      {{- with $root.Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- range . }}
+        - name: {{ . | quote }}
+        {{- end }}
+      {{- end }}
       containers:
-        - name: model-service
-          image: "{{ .Values.image.registry }}/nexus-model-service:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: {{ $component.name }}
+          image: "{{ $root.Values.image.registry }}/nexus-{{ $component.name }}:{{ include "nexus.imageTag" $root }}"
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml $root.Values.containerSecurityContext | nindent 12 }}
           ports:
-            - containerPort: 8001
+            - name: http
+              containerPort: {{ $component.port }}
+              protocol: TCP
           env:
             - name: APP_VERSION
-              value: {{ .Values.config.appVersion | quote }}
-          readinessProbe:
-            httpGet: {path: /health, port: 8001}
-            initialDelaySeconds: 4
-            periodSeconds: 5
-          livenessProbe:
-            httpGet: {path: /health, port: 8001}
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: metrics-service
-  labels:
-    app.kubernetes.io/name: metrics-service
-    app.kubernetes.io/part-of: nexus-ai-observability
-    app.kubernetes.io/version: {{ .Values.image.tag | quote }}
-spec:
-  replicas: {{ .Values.replicas.metricsService }}
-  selector:
-    matchLabels:
-      app: metrics-service
-  template:
-    metadata:
-      labels:
-        app: metrics-service
-        app.kubernetes.io/version: {{ .Values.image.tag | quote }}
-    spec:
-      containers:
-        - name: metrics-service
-          image: "{{ .Values.image.registry }}/nexus-metrics-service:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: 8002
-          env:
-            - name: APP_VERSION
-              value: {{ .Values.config.appVersion | quote }}
-          readinessProbe:
-            httpGet: {path: /health, port: 8002}
-            initialDelaySeconds: 4
-            periodSeconds: 5
-          livenessProbe:
-            httpGet: {path: /health, port: 8002}
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dashboard
-  labels:
-    app.kubernetes.io/name: dashboard
-    app.kubernetes.io/part-of: nexus-ai-observability
-    app.kubernetes.io/version: {{ .Values.image.tag | quote }}
-spec:
-  replicas: {{ .Values.replicas.dashboard }}
-  selector:
-    matchLabels:
-      app: dashboard
-  template:
-    metadata:
-      labels:
-        app: dashboard
-        app.kubernetes.io/version: {{ .Values.image.tag | quote }}
-    spec:
-      containers:
-        - name: dashboard
-          image: "{{ .Values.image.registry }}/nexus-dashboard:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: 8000
-          env:
-            - {name: MODEL_SERVICE_URL, value: "http://model-service:8001"}
-            - {name: METRICS_SERVICE_URL, value: "http://metrics-service:8002"}
+              value: {{ include "nexus.imageTag" $root | quote }}
+            {{- if eq $component.name "dashboard" }}
+            - name: MODEL_SERVICE_URL
+              value: "http://model-service:8001"
+            - name: METRICS_SERVICE_URL
+              value: "http://metrics-service:8002"
             - name: ENVIRONMENT_NAME
-              value: {{ .Values.config.environmentName | quote }}
-            - name: APP_VERSION
-              value: {{ .Values.config.appVersion | quote }}
+              value: {{ $root.Values.config.environmentName | quote }}
             - name: OCTOPUS_RELEASE
-              value: {{ .Values.config.octopusRelease | quote }}
+              value: {{ $root.Values.config.deploymentRelease | quote }}
             - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: REFRESH_INTERVAL
-              value: {{ .Values.config.refreshInterval | quote }}
+              value: {{ $root.Values.config.refreshInterval | quote }}
             - name: DEFAULT_MODEL
-              value: {{ .Values.config.defaultModel | quote }}
+              value: {{ $root.Values.config.defaultModel | quote }}
+            {{- end }}
           readinessProbe:
-            httpGet: {path: /ready, port: 8000}
-            initialDelaySeconds: 8
-            periodSeconds: 5
+            httpGet:
+              path: {{ if eq $component.name "dashboard" }}/ready{{ else }}{{ $component.healthPath }}{{ end }}
+              port: http
+            {{- toYaml $root.Values.probes.readiness | nindent 12 }}
           livenessProbe:
-            httpGet: {path: /health, port: 8000}
-            initialDelaySeconds: 10
-            periodSeconds: 10
+            httpGet:
+              path: {{ $component.healthPath }}
+              port: http
+            {{- toYaml $root.Values.probes.liveness | nindent 12 }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml $root.Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      {{- with $root.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $root.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $root.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
