@@ -1,7 +1,7 @@
 apiVersion: v2
 name: nexus-ai-observability
 description: Three-service AI model observability platform
+kind: application
 type: application
-# CI overrides both fields with RELEASE_VERSION during packaging.
 version: 0.1.0
 appVersion: "local"

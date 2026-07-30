@@ -2,7 +2,13 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nexus-dashboard
+  name: {{ include "nexus.fullname" . }}
+  labels:
+    {{- include "nexus.commonLabels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.className | quote }}
   rules:
@@ -10,7 +16,7 @@ spec:
       http:
         paths:
           - path: {{ .Values.ingress.path | quote }}
-            pathType: Prefix
+            pathType: {{ .Values.ingress.pathType }}
             backend:
               service:
                 name: dashboard

@@ -1,7 +1,12 @@
 image:
   registry: navneet78
-  tag: local
+  # Empty means: use Chart.appVersion. CI sets Chart.appVersion to RELEASE_VERSION.
+  tag: ""
   pullPolicy: IfNotPresent
+  pullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
 
 replicas:
   dashboard: 1
@@ -10,12 +15,12 @@ replicas:
 
 config:
   environmentName: Local
-  appVersion: local
-  octopusRelease: local
+  deploymentRelease: local
   refreshInterval: "8"
   defaultModel: supportpilot
 
 service:
+  type: ClusterIP
   dashboardPort: 80
 
 resources:
@@ -26,8 +31,38 @@ resources:
     cpu: 300m
     memory: 256Mi
 
+probes:
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 12
+  liveness:
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 6
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
 ingress:
   enabled: false
   className: traefik
+  annotations: {}
   host: nexus.local
   path: /
+  pathType: Prefix

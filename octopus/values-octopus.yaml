@@ -1,11 +1,9 @@
-image:
-  registry: navneet78
-  tag: "#{Octopus.Release.Number}"
-
+# Octopus substitutes only environment/deployment metadata.
+# The image tag is intentionally NOT set here. It comes from Chart.appVersion,
+# which TeamCity stamps with RELEASE_VERSION when packaging the immutable chart.
 config:
   environmentName: "#{Octopus.Environment.Name}"
-  appVersion: "#{Octopus.Release.Number}"
-  octopusRelease: "#{Octopus.Release.Number}"
+  deploymentRelease: "#{Octopus.Release.Number}"
 
 ingress:
   host: "#{IngressHost}"

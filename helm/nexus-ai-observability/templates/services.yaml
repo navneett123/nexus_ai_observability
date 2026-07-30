@@ -1,14 +1,27 @@
-apiVersion: v1
-kind: Service
-metadata: {name: model-service}
-spec: {selector: {app: model-service}, ports: [{port: 8001, targetPort: 8001}]}
+{{- $root := . -}}
+{{- $components := list
+  (dict "name" "model-service" "port" 8001 "targetPort" "http")
+  (dict "name" "metrics-service" "port" 8002 "targetPort" "http")
+  (dict "name" "dashboard" "port" .Values.service.dashboardPort "targetPort" "http")
+-}}
+{{- range $index, $component := $components }}
+{{- if $index }}
 ---
+{{- end }}
 apiVersion: v1
 kind: Service
-metadata: {name: metrics-service}
-spec: {selector: {app: metrics-service}, ports: [{port: 8002, targetPort: 8002}]}
----
-apiVersion: v1
-kind: Service
-metadata: {name: dashboard}
-spec: {selector: {app: dashboard}, ports: [{port: {{ .Values.service.dashboardPort }}, targetPort: 8000}]}
+metadata:
+  name: {{ $component.name }}
+  labels:
+    {{- include "nexus.commonLabels" $root | nindent 4 }}
+    {{- include "nexus.selectorLabels" (dict "component" $component.name "root" $root) | nindent 4 }}
+spec:
+  type: {{ $root.Values.service.type }}
+  selector:
+    {{- include "nexus.selectorLabels" (dict "component" $component.name "root" $root) | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ $component.port }}
+      targetPort: {{ $component.targetPort }}
+      protocol: TCP
+{{- end }}

@@ -1,20 +1,19 @@
 # Octopus deployment contract
 
-Package: `nexus-ai-observability.<release>.tgz`
+Configure the Helm step once:
 
-Helm values files, in order:
+- Chart package: `nexus-ai-observability`
+- Namespace: `#{KubernetesNamespace}`
+- Additional values file: `octopus/values-octopus.yaml`
+- Structured variable replacement: enabled for `values-octopus.yaml`
+- Additional Helm parameters: leave empty
 
-1. `values.yaml` from the package
-2. `values-dev.yaml` or `values-prod.yaml` from the package
-3. `octopus/values-octopus.yaml` with Octopus variable substitution enabled
+Project variables:
 
-Deployment namespace:
+- `KubernetesNamespace` scoped by environment
+- `IngressHost` scoped by environment
 
-`#{KubernetesNamespace}`
-
-Required scoped variables:
-
-- `KubernetesNamespace`: `nexus-dev` for Development, `nexus-prod` for Production
-- `IngressHost`: `nexus-dev.local` for Development, `nexus.local` for Production
-
-The Octopus release number is the immutable Docker image tag and application version.
+Do not create `ImageTag` or `ReleaseVersion` variables. The Docker image tag is
+resolved from the packaged chart's `appVersion`, stamped by TeamCity from
+`RELEASE_VERSION`. Therefore Octopus release `0.0.14` can safely deploy package
+`2.1.34`; Kubernetes still pulls image `2.1.34`.
