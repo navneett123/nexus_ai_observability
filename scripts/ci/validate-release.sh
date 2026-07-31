@@ -24,4 +24,17 @@ if grep -R --line-number --fixed-strings 'image.tag=#{Octopus.Release.Number}' h
   exit 4
 fi
 
+
+for dockerfile in services/*/Dockerfile; do
+  if ! grep -Eq '^USER[[:space:]]+10001(:10001)?$' "$dockerfile"; then
+    echo "Dockerfile must use numeric non-root UID 10001: $dockerfile" >&2
+    exit 5
+  fi
+done
+
+if ! grep -Eq '^[[:space:]]+runAsUser:[[:space:]]+10001$' helm/nexus-ai-observability/values.yaml; then
+  echo "Helm securityContext must set runAsUser: 10001" >&2
+  exit 6
+fi
+
 printf 'Release contract valid: %s/%s\n' "$REGISTRY_NAMESPACE" "$RELEASE_VERSION"

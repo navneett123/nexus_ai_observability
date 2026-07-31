@@ -1,51 +1,205 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["image", "replicas", "config", "service", "resources", "ingress"],
+  "required": [
+    "image",
+    "replicas",
+    "config",
+    "service",
+    "resources",
+    "ingress",
+    "podSecurityContext",
+    "containerSecurityContext"
+  ],
   "properties": {
     "image": {
       "type": "object",
-      "required": ["registry", "tag", "pullPolicy"],
+      "required": [
+        "registry",
+        "tag",
+        "pullPolicy"
+      ],
       "properties": {
-        "registry": {"type": "string", "minLength": 1},
-        "tag": {"type": "string"},
-        "pullPolicy": {"enum": ["Always", "IfNotPresent", "Never"]},
-        "pullSecrets": {"type": "array", "items": {"type": "string"}}
+        "registry": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag": {
+          "type": "string"
+        },
+        "pullPolicy": {
+          "enum": [
+            "Always",
+            "IfNotPresent",
+            "Never"
+          ]
+        },
+        "pullSecrets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
     "replicas": {
       "type": "object",
       "properties": {
-        "dashboard": {"type": "integer", "minimum": 1},
-        "modelService": {"type": "integer", "minimum": 1},
-        "metricsService": {"type": "integer", "minimum": 1}
+        "dashboard": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "modelService": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "metricsService": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     },
     "config": {
       "type": "object",
       "properties": {
-        "environmentName": {"type": "string", "minLength": 1},
-        "deploymentRelease": {"type": "string", "minLength": 1},
-        "refreshInterval": {"type": "string", "pattern": "^[0-9]+$"},
-        "defaultModel": {"type": "string", "minLength": 1}
+        "environmentName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "deploymentRelease": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refreshInterval": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "defaultModel": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "service": {
       "type": "object",
       "properties": {
-        "type": {"enum": ["ClusterIP", "NodePort", "LoadBalancer"]},
-        "dashboardPort": {"type": "integer", "minimum": 1, "maximum": 65535}
+        "type": {
+          "enum": [
+            "ClusterIP",
+            "NodePort",
+            "LoadBalancer"
+          ]
+        },
+        "dashboardPort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        }
       }
     },
     "ingress": {
       "type": "object",
       "properties": {
-        "enabled": {"type": "boolean"},
-        "className": {"type": "string"},
-        "annotations": {"type": "object"},
-        "host": {"type": "string", "minLength": 1},
-        "path": {"type": "string", "minLength": 1},
-        "pathType": {"enum": ["Exact", "Prefix", "ImplementationSpecific"]}
+        "enabled": {
+          "type": "boolean"
+        },
+        "className": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object"
+        },
+        "host": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pathType": {
+          "enum": [
+            "Exact",
+            "Prefix",
+            "ImplementationSpecific"
+          ]
+        }
+      }
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "required": [
+        "runAsNonRoot",
+        "runAsUser",
+        "runAsGroup",
+        "fsGroup"
+      ],
+      "properties": {
+        "runAsNonRoot": {
+          "const": true
+        },
+        "runAsUser": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "runAsGroup": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fsGroup": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fsGroupChangePolicy": {
+          "enum": [
+            "Always",
+            "OnRootMismatch"
+          ]
+        },
+        "seccompProfile": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "RuntimeDefault",
+                "Localhost",
+                "Unconfined"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "containerSecurityContext": {
+      "type": "object",
+      "required": [
+        "runAsNonRoot",
+        "runAsUser",
+        "runAsGroup",
+        "allowPrivilegeEscalation",
+        "readOnlyRootFilesystem"
+      ],
+      "properties": {
+        "runAsNonRoot": {
+          "const": true
+        },
+        "runAsUser": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "runAsGroup": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "allowPrivilegeEscalation": {
+          "const": false
+        },
+        "readOnlyRootFilesystem": {
+          "type": "boolean"
+        },
+        "capabilities": {
+          "type": "object"
+        }
       }
     }
   }
