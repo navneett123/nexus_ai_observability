@@ -35,8 +35,8 @@ The Octopus release number may be `%env.RELEASE_VERSION%` or an Octopus-generate
 
 ```text
 KubernetesNamespace
-  Development = nexus-ai-dev
-  Production  = nexus-ai-prod
+  Development = nexus-dev
+  Production  = nexus-prod
 
 IngressHost
   Development = nexus-dev.local
@@ -67,9 +67,9 @@ Enable variable substitution for `values-octopus.yaml`.
 ## k3d verification
 
 ```bash
-kubectl get pods -n nexus-ai-dev
-kubectl get events -n nexus-ai-dev --sort-by=.lastTimestamp
-kubectl port-forward service/dashboard 18000:80 -n nexus-ai-dev
+kubectl get pods -n nexus-dev
+kubectl get events -n nexus-dev --sort-by=.lastTimestamp
+kubectl port-forward service/dashboard 18000:80 -n nexus-dev
 ```
 
 Open `http://localhost:18000`.

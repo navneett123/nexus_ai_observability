@@ -71,6 +71,13 @@ spec:
             - name: DEFAULT_MODEL
               value: {{ $root.Values.config.defaultModel | quote }}
             {{- end }}
+          startupProbe:
+            httpGet:
+              path: {{ $component.healthPath }}
+              port: http
+            periodSeconds: 2
+            timeoutSeconds: 2
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: {{ if eq $component.name "dashboard" }}/ready{{ else }}{{ $component.healthPath }}{{ end }}
